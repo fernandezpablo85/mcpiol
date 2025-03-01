@@ -27,7 +27,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 3. Install dependencies:
 
 ```bash
-uv pip install -r requirements.txt
+uv sync
 ```
 
 4. Create a `.env` file in the project root with your IOL credentials:
