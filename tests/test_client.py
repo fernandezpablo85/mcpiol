@@ -53,6 +53,30 @@ def mock_portfolio_response():
     }
 
 
+@pytest.fixture
+def mock_account_status_response():
+    return {
+        "cuentas": [
+            {
+                "numero": 123,
+                "tipo": "Inversion_Argentina_Pesos",
+                "moneda": "Peso_Argentino",
+                "disponible": 1000.0,
+                "comprometido": 0.0,
+                "saldo": 1000.0,
+                "titulosValorizados": 5000.0,
+                "total": 6000.0,
+                "margenDescubierto": 0.0,
+                "estado": "Operable",
+            }
+        ],
+        "estadisticas": [
+            {"descripcion": "Operaciones del mes", "cantidad": 5, "volumen": 10000.0}
+        ],
+        "totalEnPesos": 6000.0,
+    }
+
+
 def test_get_auth_token(mock_env_vars, mock_token_response):
     with patch("httpx.post") as mock_post:
         mock_post.return_value.json.return_value = mock_token_response
@@ -124,3 +148,20 @@ def test_api_error_handling(mock_env_vars, mock_token_response):
 
         with pytest.raises(httpx.HTTPError):
             client.get_profile_data()
+
+
+def test_get_account_status(
+    mock_env_vars, mock_token_response, mock_account_status_response
+):
+    with patch("httpx.post") as mock_post, patch("httpx.get") as mock_get:
+        mock_post.return_value.json.return_value = mock_token_response
+        mock_post.return_value.raise_for_status = lambda: None
+        mock_get.return_value.json.return_value = mock_account_status_response
+        mock_get.return_value.raise_for_status = lambda: None
+
+        status = client.get_account_status()
+        assert len(status["cuentas"]) == 1
+        assert status["cuentas"][0]["numero"] == 123
+        assert status["cuentas"][0]["tipo"] == "Inversion_Argentina_Pesos"
+        assert status["totalEnPesos"] == 6000.0
+        mock_get.assert_called_once()

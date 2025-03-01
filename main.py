@@ -122,6 +122,44 @@ Currency: {data.get('moneda')}
 """
 
 
+@mcp.tool()
+async def get_account_status() -> str:
+    """Get IOL (invertironline) account status and balances"""
+    data = client.get_account_status()
+
+    accounts = []
+    for account in data["cuentas"]:
+        accounts.append(
+            f"""Account Number: {account.get('numero')}
+Type: {account.get('tipo')}
+Currency: {account.get('moneda')}
+Available: {account.get('disponible')}
+Committed: {account.get('comprometido')}
+Balance: {account.get('saldo')}
+Securities Value: {account.get('titulosValorizados')}
+Total: {account.get('total')}
+Overdraft Margin: {account.get('margenDescubierto')}
+Status: {account.get('estado')}"""
+        )
+
+    stats = []
+    for stat in data["estadisticas"]:
+        if stat.get("descripcion"):  # Only add non-empty statistics
+            stats.append(
+                f"""Description: {stat.get('descripcion')}
+Quantity: {stat.get('cantidad')}
+Volume: {stat.get('volumen')}"""
+            )
+
+    result = "\n---\n".join(accounts)
+    if stats:
+        result += "\n\nStatistics:\n" + "\n---\n".join(stats)
+
+    result += f"\n\nTotal in ARS: {data.get('totalEnPesos')}"
+
+    return result
+
+
 def main():
     mcp.run(transport="stdio")
 

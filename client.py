@@ -99,3 +99,16 @@ def get_operation_details(operation_number: int):
     response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
+
+
+def get_account_status():
+    """
+    Get account status including balances and statistics
+    """
+    token = get_auth_token()
+    url = "https://api.invertironline.com/api/v2/estadocuenta"
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": UA}
+
+    response = httpx.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
