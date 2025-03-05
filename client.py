@@ -112,3 +112,20 @@ def get_account_status():
     response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
+
+
+def get_stock_quote(symbol: str, market: str = "bCBA"):
+    """
+    Get current quote for a stock
+
+    Args:
+        symbol: The stock symbol (e.g., 'GGAL')
+        market: Market identifier (default: 'bCBA' for Argentina)
+    """
+    token = get_auth_token()
+    url = f"https://api.invertironline.com/api/v2/{market}/Titulos/{symbol}/Cotizacion"
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": UA}
+
+    response = httpx.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()

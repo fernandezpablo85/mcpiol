@@ -160,6 +160,31 @@ Volume: {stat.get('volumen')}"""
     return result
 
 
+@mcp.tool()
+async def get_quote(symbol: str, market: str = "bCBA") -> str:
+    """
+    Get current quote for a stock
+    Args:
+        symbol: The stock symbol (e.g., 'GGAL')
+        market: Market identifier (default: 'bCBA' for Argentina)
+    """
+    data = client.get_stock_quote(symbol, market)
+    return f"""Quote for {symbol}:
+Last Price: {data.get('ultimoPrecio')}
+Previous Close: {data.get('cierreAnterior')}
+Opening: {data.get('apertura')}
+Daily High: {data.get('maximo')}
+Daily Low: {data.get('minimo')}
+Volume: {data.get('volumenNominal')}
+Amount Traded: {data.get('montoOperado')}
+Date/Time: {data.get('fecha')}
+Market: {data.get('mercado')}
+Currency: {data.get('moneda')}
+Daily Change: {data.get('variacionPorcentual')}%
+Trades Count: {data.get('cantidadOperaciones')}
+"""
+
+
 def main():
     mcp.run(transport="stdio")
 
