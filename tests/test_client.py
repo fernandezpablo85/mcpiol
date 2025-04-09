@@ -200,3 +200,15 @@ def test_get_stock_quote(mock_env_vars, mock_token_response, mock_quote_response
         assert quote["ultimoPrecio"] == 755.55
         assert quote["mercado"] == "BCBA"
         mock_get.assert_called_once()
+
+
+def test_get_historical_data(mock_token_response, mock_quote_response):
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    start_date = "2025-04-02"
+    end_date = "2025-04-09"
+    historical_data = client.get_historical_data(
+        symbol="GGAL", start_date=start_date, end_date=end_date
+    )
+    assert len(historical_data) == 4

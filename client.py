@@ -129,3 +129,29 @@ def get_stock_quote(symbol: str, market: str = "bCBA"):
     response = httpx.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
+
+
+def get_historical_data(
+    symbol, market="bCBA", start_date=None, end_date=None, adjusted=True
+):
+    """
+    Get historical price data for a specific symbol
+
+    Args:
+        symbol: The stock symbol (e.g., 'GGAL')
+        market: Market identifier (default: 'bCBA' for Argentina)
+        start_date: Start date in YYYY-MM-DD format
+        end_date: End date in YYYY-MM-DD format
+        adjusted: Whether to use adjusted prices (default: True)
+
+    Returns:
+        Historical price data for the specified period
+    """
+    token = get_auth_token()
+    adjusted_param = "ajustada" if adjusted else "sinajustar"
+    url = f"https://api.invertironline.com/api/v2/{market}/Titulos/{symbol}/Cotizacion/seriehistorica/{start_date}/{end_date}/{adjusted_param}"
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": UA}
+
+    response = httpx.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
