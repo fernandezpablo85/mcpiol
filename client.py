@@ -2,12 +2,14 @@ import os
 import httpx
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from cachetools import cached, TTLCache
 
 load_dotenv()
 
 UA = "mcpiol/1.0"
 
 
+@cached(cache=TTLCache(maxsize=3, ttl=120))
 def get_auth_token():
     user = os.getenv("IOL_USER")
     password = os.getenv("IOL_PASS")
