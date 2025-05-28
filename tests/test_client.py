@@ -98,6 +98,16 @@ def mock_quote_response():
     }
 
 
+@pytest.fixture
+def mock_historical_data_response():
+    return [
+        {"fecha": "2025-05-02", "apertura": 100.0, "cierre": 102.0, "volumen": 1000},
+        {"fecha": "2025-05-05", "apertura": 102.5, "cierre": 101.0, "volumen": 1200},
+        {"fecha": "2025-05-06", "apertura": 101.0, "cierre": 103.0, "volumen": 1100},
+        {"fecha": "2025-05-07", "apertura": 103.0, "cierre": 102.5, "volumen": 1050},
+    ]
+
+
 def test_get_auth_token(mock_env_vars, mock_token_response):
     with patch("httpx.post") as mock_post:
         mock_post.return_value.json.return_value = mock_token_response
@@ -202,13 +212,17 @@ def test_get_stock_quote(mock_env_vars, mock_token_response, mock_quote_response
         mock_get.assert_called_once()
 
 
-def test_get_historical_data(mock_token_response, mock_quote_response):
-    from dotenv import load_dotenv
+def test_get_historical_data(mock_env_vars, mock_token_response, mock_historical_data_response):
+    with patch("httpx.post") as mock_post, patch("httpx.get") as mock_get:
+        mock_post.return_value.json.return_value = mock_token_response
+        mock_post.return_value.raise_for_status = lambda: None
+        mock_get.return_value.json.return_value = mock_historical_data_response
+        mock_get.return_value.raise_for_status = lambda: None
 
-    load_dotenv()
-    start_date = "2025-04-02"
-    end_date = "2025-04-09"
-    historical_data = client.get_historical_data(
-        symbol="GGAL", start_date=start_date, end_date=end_date
-    )
-    assert len(historical_data) == 4
+        start_date = "2025-05-02"
+        end_date = "2025-05-09"
+        historical_data = client.get_historical_data(
+            symbol="AL30", start_date=start_date, end_date=end_date
+        )
+        assert len(historical_data) == 4
+        mock_get.assert_called_once()
